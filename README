@@ -1,0 +1,5 @@
+#can be run with:
+python replot.py --isMVAorCC=<mva or cc> --plot_path=<path_to_root_file> --output_dir=<output_path>  --opt=optname
+# optname should match one of the keys in defaults.plot_options for plot based customization
+# example:
+python replot.py --isMVAorCC=mva --plot_path=/afs/cern.ch/user/c/cbeiraod/public/Stop4Body/temp/PreselectionMVA_lowDM_Met_syncPlot.root --output_dir="./"
