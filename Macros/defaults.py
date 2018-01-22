@@ -40,11 +40,8 @@ plot_styles = {
                "DY":           { 'SetFillColor': (0.77, 0.60, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Z/#gamma* + jets'},
                "QCD":          { 'SetFillColor': (0.85, 1.00, 0.40) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'QCD multijet'},
                "TTX":          { 'SetFillColor': (0.55, 0.40, 1.20) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'t#bar{t}X'},
-
                "Rare":        { 'SetFillColor': (0.13, 1.00, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Fakes'},
                "Nonprompt":   { 'SetFillColor': (0.77, 0.60, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Nonprompt'},
-
-
                 } 
     
 plot_styles.update( {
@@ -67,12 +64,14 @@ sig_colors = {
              }
 #tilde{t}
 #sig_label  = "T2tt(%s,%s)"
-sig_label  = "m(#tilde{t}, #tilde{#chi}^{0})=(%s, %s)"
-sig_label  = "m_{#tilde{t}} = %s, m_{#tilde{#chi}^{0}} = %s"
-sig_label  = "m(#tilde{t}) = %s, m(#tilde{#chi}^{0}) = %s"
-sig_label  = "pp #rightarrow #tilde{t} #tilde{t}, #tilde{t} #rightarrow b f f' #tilde{#chi}^{0}_{1} (%s,%s)"
-sig_label  = "T2t*t*(%s,%s)"
-sig_label  = "#tilde{t} #rightarrow b f f' #tilde{#chi}^{0}_{1} (%s,%s)"
+#sig_label  = "m(#tilde{t}, #tilde{#chi}^{0})=(%s, %s)"
+#sig_label  = "m_{#tilde{t}} = %s, m_{#tilde{#chi}^{0}} = %s"
+#sig_label  = "m(#tilde{t}) = %s, m(#tilde{#chi}^{0}) = %s"
+#sig_label  = "pp #rightarrow #tilde{t} #tilde{t}, #tilde{t} #rightarrow b f f' #tilde{#chi}^{0}_{1} (%s,%s)"
+#sig_label  = "T2t*t*(%s,%s)"
+#sig_label  = "#tilde{t} #rightarrow b f f' #tilde{#chi}^{0}_{1} (%s,%s)"
+sig_label  = "#tilde{t}_{1} #rightarrow b f f' #tilde{#chi}#lower[0.2]{#scale[0.85]{^{0}}}#kern[-1.3]{#lower[0.2]{#scale[0.85]{_{1}}}} (%s,%s)"
+
 
 for sigmasses, sig_color in sig_colors.items():
     plot_styles[sigmasses] = { 'SetLineColor':sig_color, 'SetLineWidht':2  , 'SetTitle': sig_label%sigmasses }
@@ -82,7 +81,8 @@ plot_options = {
                   'mt':  {'xtitle':"M_{T}(l, E_{T}^{miss}) [GeV]"},
                 'leppt': {'xtitle':"p_{T}(l) [GeV]",
                           'defaults':{
-                                      'legx'     : [0.77 , 0.91 ]       ,
+                                      'bigLeg'   : False,
+                                      'legx'     : [0.78 , 0.95 ]       ,
                                       'legy'     : [0.72 , 0.89 ]      ,
                                       'nBkgInLeg':  4                 , 
                                      }
@@ -93,13 +93,18 @@ plot_options = {
                            'defaults':{
                                      'nBkgInLeg': 4 ,
                                      'hists_order' : ["Rare", "Nonprompt", "TTbar","WJets"],
-                                     'legx':[0.7,  0.90 ],
+                                     'legx':[0.71,  0.91 ],
                                      'legy':[0.7,  0.89 ],
                                      'ymin':0.01,
                                      'ratio_range':[0,2.1],
                                      }
-                         }
+                         },
+                'BDT': { 
+                        'defaults':{
+                                    'ratio_range':[0.1,2.1],
+                                   }
                 }
+            }
 
 plot_opt = ""
 
@@ -138,7 +143,7 @@ ratio_range = [0.4,1.6]
 ## bigger leg
 bigLeg = True
 if bigLeg:
-    legx = [0.7,0.90 ]
+    legx = [0.72,0.92 ]
     legy = [0.55, 0.89 ]
     nBkgInLeg = 8 # determines number of legend columns
     

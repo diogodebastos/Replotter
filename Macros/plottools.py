@@ -36,7 +36,7 @@ def makeLegendFromHists( hists, name="Legend", loc=[] , opt='f'):
     leg.SetBorderSize(0)
     for h in hists:
         opt_ = getattr(h,"legopt", opt) 
-        leg.AddEntry( h, h.GetTitle(), opt_)
+        leg.AddEntry( h, "#font[42]{%s}"%h.GetTitle(), opt_)
     return leg 
 
 
@@ -79,10 +79,11 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
     data_hists = [data] if data else []
     sig_hists  = list( sig_stack.GetHists() ) if isinstance( sig_stack, ROOT.THStack) else [sig_stack]
     #hists  = data_hists + mc_hists + sig_hists #+ data_hists
-    if defaults.bigLeg:
-        hists  = mc_hists + data_hists + sig_hists #+ data_hists
-    else:
-        hists  = data_hists + mc_hists + sig_hists #+ data_hists
+    hists  = mc_hists + data_hists + sig_hists #+ data_hists
+    #if defaults.bigLeg:
+    #    hists  = mc_hists + data_hists + sig_hists #+ data_hists
+    #else:
+    #    hists  = data_hists + mc_hists + sig_hists #+ data_hists
     nhists = len(hists)
     from math import ceil
     nBkgInLeg = nBkgInLeg if nBkgInLeg else nhists
@@ -95,7 +96,7 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
     for h in sig_hists:
         h.legopt='l'
     for h in data_hists:
-        h.legopt='lp'
+        h.legopt='lpe'
     if mc_hists:
         subBkgLists = [ hists[x:x+nBkgInLeg] for x in range(0, nhists , nBkgInLeg) ]
         #print subBkgLists
@@ -109,9 +110,10 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
             #print "==========================================================================="
             legs.append(bkgLeg)
             #legx = [ 2*legx[0] -legx[1] , legx[0]  ]
+            isLastCol = i == len(subBkgLists)-2
             dx   = legx[1]-legx[0]
-            f_   = 1.3 if defaults.bigLeg else 1.
-            legx = [ legx[0]-f_*dx , legx[1]-dx  ]
+            f_   = 0.08 if defaults.bigLeg else (isLastCol)*0.1
+            legx = [ legx[0] - dx - f_ , legx[1] - dx   ]
     #if sig_stack:
     #    for sig in sig_hists:
     #        bkgLeg.AddEntry(sig, sig.GetTitle(), 'l')
