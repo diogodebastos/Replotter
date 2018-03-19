@@ -96,7 +96,8 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
     for h in sig_hists:
         h.legopt='l'
     for h in data_hists:
-        h.legopt='lpe'
+        #h.legopt='lpe'
+        h.legopt='epX0'
     if mc_hists:
         subBkgLists = [ hists[x:x+nBkgInLeg] for x in range(0, nhists , nBkgInLeg) ]
         #print subBkgLists
@@ -299,7 +300,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
             dOptSig += " nostack"
         sig_stack.Draw(dOptSig)
     #drawCMSHeader()
-    data_hist.Draw("same")
+    data_hist.Draw("sameE0X0")
 
     if leg:
         leg = [leg] if not type(leg) in [list, tuple] else leg
@@ -307,7 +308,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
             l.Draw()
 
     ## draw ratio
-    ytitle_r = options.get( "ytitle_r", "Data/#Sigma MC")
+    ytitle_r = options.get( "ytitle_r", "Data/MC")
     #ytitle_size = options.get("ytitle_size", 0.12 )
     #ytitle_offset = options.get("ytitle_offset", 0.5)
     xtitle = options.get( "xtitle")
@@ -326,7 +327,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
     unity.GetXaxis().LabelsOption("v")
     mc_e.Draw("E2same")
     mc_e.Draw("E2same")
-    data_ratio.Draw("E0p same")
+    data_ratio.Draw("E0p X0 same")
     #data_ratio.SetMaximum(2)
     #data_ratio.SetMinimum(0)
     #degTools.saveCanvas( canv[0], saveDir , name)
