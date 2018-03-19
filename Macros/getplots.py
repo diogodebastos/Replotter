@@ -6,6 +6,7 @@ from replot import defaults
 import colorsys
 
 sigs_to_use = defaults.sigs_to_use #( (500,490), (500,470), (500,420) )
+mvaUncertainty = defaults.mvaUncertainty
 
 def getSigMasses( signame ):
     import re
@@ -25,12 +26,17 @@ def getMVAplot( root_file):
     sigs_to_use_ = [ h for h in sig_hists if getSigMasses(h.GetTitle()) in sigs_to_use ]
     #hists['mcError'] = hists['']
     hists['mcSum_orig'] = hists['mcSum'].Clone()
-    mc_err_atone   = hists['relativeSystematicUncertainties'].Clone()
-    hists['mcSum'].Sumw2()
-    mc_err_atone.Sumw2()
-    for ib in range( 1,mc_err_atone.GetNbinsX()+1 ):
+
+    if mvaUncertainty == "syst" or mvaUncertainty == "env":
+      if mvaUncertainty == "syst":
+        mc_err_atone   = hists['relativeSystematicUncertainties'].Clone()
+      else:
+        mc_err_atone   = hists['relativeSystematicUncertaintiesEnvelope'].Clone()
+      hists['mcSum'].Sumw2()
+      mc_err_atone.Sumw2()
+      for ib in range( 1,mc_err_atone.GetNbinsX()+1 ):
         mc_err_atone.SetBinContent(ib,1)
-    hists['mcSum'] = hists['mcSum'] * mc_err_atone
+      hists['mcSum'] = hists['mcSum'] * mc_err_atone
 
     if not sigs_to_use_:
         sigs_to_use_ = sig_hists
