@@ -19,7 +19,7 @@ sigs_to_use = (
               )  ## use these sigs of available 
 
 
-
+mvaUncertainty = "syst"
 
 
 
@@ -34,7 +34,7 @@ error_fill_style = 3013
 plot_styles = {
                "WJets":        { 'SetFillColor': (0.28, 0.60, 0.90) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'W + jets'},
                "TTbar":        { 'SetFillColor': (0.63, 0.80, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'t#bar{t}'},
-               "SingleTop":    { 'SetFillColor': (0.56, 0.50, 0.80) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Single top'},
+               "SingleTop":    { 'SetFillColor': (0.56, 0.50, 0.80) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Single t'},
                "VV":           { 'SetFillColor': (0.25, 0.90, 0.45) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Diboson'},
                "ZInv":         { 'SetFillColor': (0.13, 1.00, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Z#rightarrow#nu#nu + jets'},
                "DY":           { 'SetFillColor': (0.77, 0.60, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Z/#gamma* + jets'},
@@ -102,6 +102,29 @@ plot_options = {
                 'BDT': { 
                         'defaults':{
                                     'ratio_range':[0.1,2.1],
+                                    'mvaUncertainty':"syst",
+                                   }
+                },
+                'BDTEnv': { 
+                        'defaults':{
+                                    'ratio_range':[0.1,2.1],
+                                    'mvaUncertainty':"env",
+                                   }
+                },
+                'BDTStat': { 
+                        'defaults':{
+                                    'ratio_range':[0.1,2.1],
+                                    'mvaUncertainty':"stat",
+                                   }
+                },
+                'MVAEnv': { 
+                        'defaults':{
+                                    'mvaUncertainty':"env",
+                                   }
+                },
+                'MVAStat': { 
+                        'defaults':{
+                                    'mvaUncertainty':"stat",
                                    }
                 }
             }
