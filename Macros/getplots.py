@@ -36,7 +36,7 @@ def getMVAplot( root_file):
       for ib in range( 1,mc_err_atone.GetNbinsX()+1 ):
         mc_err_atone.SetBinContent(ib,1)
 
-    if getattr(defaults, "addMVASysts", True ) :
+      if getattr(defaults, "addMVASysts", True ) :
         hists['mcSum'] = hists['mcSum'] * mc_err_atone
 
     if not sigs_to_use_:
