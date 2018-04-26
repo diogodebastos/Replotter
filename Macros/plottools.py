@@ -96,12 +96,12 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
     for h in sig_hists:
         h.legopt='l'
     for h in data_hists:
-        #h.legopt='lpe'
-        h.legopt='epX0'
+        h.legopt='ep'
     if mc_hists:
         subBkgLists = [ hists[x:x+nBkgInLeg] for x in range(0, nhists , nBkgInLeg) ]
         #print subBkgLists
         nBkgLegs = len(subBkgLists)
+        isLastCol = False
         for i , subBkgList in enumerate( subBkgLists ):
             legloc = [legx[0], legy[1]- len(subBkgList)*legy_dens  ,legx[1],legy[1]]
             #bkgLeg = makeLegendFromHists( [h for h in subBkgList if h in mc_hists], name='leg_%s'%i , loc = legloc )# [legx[0], newLegY0 ,legx[1],legy[1]] )
@@ -109,12 +109,26 @@ def makeLegend( data=None, mc_stack=None, sig_stack=None, leg_location=None , nB
             #print "==========================================================================="
             #print bkgLeg, subBkgList, "\n" , legloc #[legx[0], newLegY0  , legx[1],legy[1]]
             #print "==========================================================================="
+            bkgLeg.SetMargin(0.2)
+            if isLastCol:
+                bkgLeg.SetMargin(0.15)
             legs.append(bkgLeg)
             #legx = [ 2*legx[0] -legx[1] , legx[0]  ]
+            if isLastCol: 
+                break
             isLastCol = i == len(subBkgLists)-2
             dx   = legx[1]-legx[0]
-            f_   = 0.08 if defaults.bigLeg else (isLastCol)*0.1
-            legx = [ legx[0] - dx - f_ , legx[1] - dx   ]
+            #f__   = 0.08 if defaults.bigLeg else (isLastCol)*0.1
+            #f_   = getattr(defaults, 'legMultiColFact', f__ )
+            offsets = getattr( defaults, 'legMultiColOffsets', False )
+            if not offsets:
+                offset1, offset2 = [0,0]
+            else:
+                offset1, offset2 = offsets[i]
+                
+            print offset1,offset2, isLastCol
+            legx = [ legx[0] - dx - offset2 , legx[1] - dx -offset1  ]
+            print legx
     #if sig_stack:
     #    for sig in sig_hists:
     #        bkgLeg.AddEntry(sig, sig.GetTitle(), 'l')
@@ -289,7 +303,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
     mc_stack.Draw("hist")
     ytitle = options.get( "ytitle", "Events")
     mc_stack.GetYaxis().SetTitle( ytitle )
-    mc_stack.GetYaxis().SetTitleOffset(1.0)
+    mc_stack.GetYaxis().SetTitleOffset(  getattr( defaults, "ytitle_offset", 1.0 ) )
     mc_stack.SetMaximum(ymax* ( 1.5 + 15*setLogY) )
     mc_stack.SetMinimum( ymin )
     mc_eb.Draw("E2same")
@@ -308,7 +322,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
             l.Draw()
 
     ## draw ratio
-    ytitle_r = options.get( "ytitle_r", "Data/MC")
+    ytitle_r = options.get( "ytitle_r", getattr(defaults, "ytitle_r", "Data/MC") )
     #ytitle_size = options.get("ytitle_size", 0.12 )
     #ytitle_offset = options.get("ytitle_offset", 0.5)
     xtitle = options.get( "xtitle")
@@ -324,10 +338,10 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
     xsize = canv_hw[0]/( nBinsX +1)/180. #180 scale is arbitrary (but emperical!)
     xsize = min([0.12, xsize])
     unity.GetXaxis().SetLabelSize( xsize )
-    unity.GetXaxis().LabelsOption("v")
+    #unity.GetXaxis().LabelsOption("v")
     mc_e.Draw("E2same")
     mc_e.Draw("E2same")
-    data_ratio.Draw("E0p X0 same")
+    data_ratio.Draw("E0X0p same")
     #data_ratio.SetMaximum(2)
     #data_ratio.SetMinimum(0)
     #degTools.saveCanvas( canv[0], saveDir , name)
@@ -367,6 +381,8 @@ def getCanvFirstHist( canv , doClone=False):
     prims = getCanvPrims(canv, doClone=doClone)
     hist_types = [ROOT.TH1D, ROOT.TH2D, ROOT.TH1F, ROOT.TH2F ]
     for p in prims:
+        if isinstance(p, ROOT.THStack ):
+            return p.GetHists().First()
         if any( [isinstance( p, htype) for htype in hist_types ] ):
             return p
     
@@ -386,14 +402,17 @@ def adjustRatioPadTitleSizes(pad1,pad2):
     h1.GetYaxis().SetTitleSize(   getattr( defaults, "ytitle_size", 0.06 ) )
     h1.GetYaxis().SetLabelSize(   getattr( defaults, "ytitle_size", 0.06 ) )
     h1.GetYaxis().SetTitleOffset( getattr( defaults, "ytitle_offset", 1.25 ) )
+    h1.Modify()
 
     xtitle_r_factor = getattr( defaults, "xtitle_r_factor", 0.8)
+    ytitle_r_offset_factor  = getattr( defaults, "ytitle_r_offset_factor" , 1.0 )
     h2.GetXaxis().SetTitleSize(  h1.GetXaxis().GetTitleSize()      * pads_ratio )
     h2.GetXaxis().SetLabelSize(  h1.GetXaxis().GetLabelSize()  * pads_ratio )
     h2.GetXaxis().SetTitleOffset(  h1.GetXaxis().GetTitleOffset()   )
+    h2.GetXaxis().SetLabelOffset(0.01)
     
     h2.GetYaxis().SetTitleSize(  h1.GetYaxis().GetTitleSize()      * pads_ratio )
-    h2.GetYaxis().SetTitleOffset(  h1.GetYaxis().GetTitleOffset()  / pads_ratio * xtitle_r_factor)
+    h2.GetYaxis().SetTitleOffset(  h1.GetYaxis().GetTitleOffset()  / pads_ratio * ytitle_r_offset_factor)
     h2.GetYaxis().SetLabelSize(  h1.GetYaxis().GetLabelSize()  * pads_ratio * xtitle_r_factor)
     h2.GetYaxis().SetLabelOffset(0.01)
      

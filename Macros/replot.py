@@ -25,6 +25,10 @@ plot_defaults = plot_options.get("defaults",{})
 for pdef, pdefval in plot_defaults.items():
     setattr(defaults,pdef,pdefval)
 
+cms_lumi_defaults = plot_options.get("CMS_lumi",{})
+for opt, optval in cms_lumi_defaults.items():
+    setattr(defaults.CMS_lumi,opt,optval)
+
 def replot( isMVAorCC, plot_path, output_dir, plot_options={}):
     assert isMVAorCC in ['mva','cc']
     
@@ -79,8 +83,102 @@ if __name__ == '__main__':
     leg       = plottools.makeLegend( data, mc_stack, sig_stack  , nBkgInLeg=defaults.nBkgInLeg , legx=defaults.legx, legy=defaults.legy )
     plot_ret  = plottools.drawNiceDataPlot( data, mc_stack, sig_stack, mc_total=mc_tot, saveDir=args.output_dir, name=plot_name , leg=leg, options=plot_options )
 
+    #if plot_options.has_key('objectsToDraw'):
+    #    objectsToDraw = plot_options['objectsToDraw']
 
+    if 'CCres' in args.opt:
+        #draw lines
+        import ROOT
+        import numpy as np
+        y0 = 0 
+        def drawVLine( x, y ,s,w=3):
+            l=ROOT.TLine( x,0.01,x,y0+y)
+            l.SetLineColor( ROOT.kGray+2) 
+            l.SetLineWidth( w ) 
+            l.SetLineStyle( s ) 
+            l.Draw()
+            return l
+        
+        def drawTLatex( x,y, text, font=42):
+            tl = ROOT.TLatex( x,y0+y, text)
+            tl.SetTextAlign(23)
+            #tl.SetTextFont(12)
+            tl.SetTextFont(font)
+            tl.SetTextSize(0.04)
+            tl.SetTextColor ( ROOT.kBlack)
+            #tl.SetTextAngle( 45 )
+            tl.Draw()
+            return tl
 
+        c,p1,p2 = plot_ret[0]
+        #p2.SetBottomMargin(0.4)
+        #c.SetBottomMargin(0.4)
+        #p2.RedrawAxis()
+        #p2.Update()
+        p1.cd()
+        spaces = [  4,  4,  4,  4,  3,  3   ]
+        sizes  = [ 2.5 , 3 , 2.5, 3, 2.5 , 3.5 ]
+        #styles = [ 7 , 9 , 7, 9, 7 , 1 ]
+        styles = [ 3 , 7 , 3, 7, 3 , 9 ]
+        locs   = np.cumsum( spaces*2 )
+        ls=[]
+        p1.SetTicks(1,0)
+        p2.SetTicks(1,0)
+        labels = [ "MTa", "", "MTb", "","MTc", "" ]
+        #labels = [ "M_{T} < 60 GeV", "", "60 < M_{T} < 95 GeV", "","M_{T} > 95 GeV", "" ]  
+        opt1=True
+        if opt1:
+            labels = [
+                   #[ "M_{T}",""]*6 , 
+                   #[ "<60 GeV", "", "60-95 GeV", "",">95 GeV" ,""] *2,
 
+                   #[ "SR1a", "", "SR1b", "","SR1c", "" ]  + [ "SR2a", "", "SR2b", "","SR2c", "" ],
+                   [ "", "", "SR1", "","" ,""] + [ "", "", "SR2", "","" ,""],
+                   [ "M_{T} < 60", "", "60 < M_{T} < 95", ""," M_{T} > 95" ,""] *2,
+                  ]
+        else:
+            labels = [
+                   [ "SR1a", "", "SR1b", "","SR1c", "" ]  + [ "SR2a", "", "SR2b", "","SR2c", "" ],
+                  ]
 
-    
+        labels += [
+                   [ "C_{T1}(X)             ", "C_{T1}(Y)             ", "C_{T1}(X)             ", "C_{T1}(Y)             ","C_{T1}(X)          " ,"C_{T1}(Y)          "] +
+                   [ "C_{T2}(X)             ", "C_{T2}(Y)             ", "C_{T2}(X)             ", "C_{T2}(Y)             ","C_{T2}(X)          " ,"C_{T2}(Y)          "] ,
+                  ]
+        #labels = [  "#splitline{M_{T}}{<60 GeV}" , "" ,
+        #            "#splitline{M_{T}}{60-95 GeV}" , "" ,
+        #            "#splitline{M_{T}}{>95 GeV}" , "" ,
+        #         ]
+        
+        #loc_size_style= zip( locs, sizes*2, styles*2 , *labels)
+        loc_size_style= zip( locs, sizes*2, styles*2 , *labels)
+        for vals in loc_size_style[:]:
+            if opt1:
+                x,y,s,l1,l2,l3 = vals
+            else:
+                x,y,s,l2,l3 = vals
+            y_ =10**(0+y)
+
+            if opt1:
+                ls.append( drawTLatex( x, 10**3.65, l1 , 62) ) 
+                ls.append( drawTLatex( x, 10**3.27, l2) ) 
+                ls.append( drawTLatex( x, 10**2.85, l3) ) 
+            else:
+                ls.append( drawTLatex( x, 10**3.35, l2, 62) ) 
+                ls.append( drawTLatex( x, 10**2.90, l3) ) 
+                
+            if s and not vals == loc_size_style[-1]:
+                ls.append( drawVLine(x,y_,s) ) 
+                p2.cd() 
+                ls.append( drawVLine(x,2,s) ) 
+                p1.cd() 
+        output_name = output_dir +"/" + plot_name
+        if opt1:
+            c.SaveAs(output_name +".png")
+            c.SaveAs(output_name +".pdf")
+            c.SaveAs(output_name +".root")
+        else:
+            c.SaveAs(output_name +"_v2.png")
+            c.SaveAs(output_name +"_v2.pdf")
+            c.SaveAs(output_name +"_v2.root")
+

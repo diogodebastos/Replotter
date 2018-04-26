@@ -15,6 +15,7 @@ extraTextFont = 52
 
 lumiTextSize     = 0.6
 lumiTextOffset   = 0.2
+extraOverCmsTextSize  = 0.76
 
 cmsTextSize      = 0.75
 cmsTextOffset    = 0.1
@@ -22,8 +23,6 @@ cmsTextOffset    = 0.1
 relPosX    = 0.045
 relPosY    = 0.035
 relExtraDY = 1.2
-
-extraOverCmsTextSize  = 0.76
 
 #lumi_13TeV = "20.1 fb^{-1}"
 #lumi_8TeV  = "19.7 fb^{-1}" 
@@ -112,12 +111,13 @@ def CMS_lumi(pad,  lumi="35.9", energy="13" ,  iPosX=0 ):
                 latex.SetTextFont(extraTextFont)
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
+                print 'py', posY_
+                print relExtraDY, cmsTextSize, t, 
                 latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText)
     elif( writeExtraText ):
         if( iPosX==0):
             posX_ =   l +  relPosX*(1-l-r)
-            posY_ =   1-t+lumiTextOffset*t
-
+            posY_ =   1-t+ lumiTextOffset*t
         latex.SetTextFont(extraTextFont)
         latex.SetTextSize(extraTextSize*t)
         latex.SetTextAlign(align_)

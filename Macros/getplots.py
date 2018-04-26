@@ -26,7 +26,6 @@ def getMVAplot( root_file):
     sigs_to_use_ = [ h for h in sig_hists if getSigMasses(h.GetTitle()) in sigs_to_use ]
     #hists['mcError'] = hists['']
     hists['mcSum_orig'] = hists['mcSum'].Clone()
-
     if mvaUncertainty == "syst" or mvaUncertainty == "env":
       if mvaUncertainty == "syst":
         mc_err_atone   = hists['relativeSystematicUncertainties'].Clone()
@@ -36,7 +35,9 @@ def getMVAplot( root_file):
       mc_err_atone.Sumw2()
       for ib in range( 1,mc_err_atone.GetNbinsX()+1 ):
         mc_err_atone.SetBinContent(ib,1)
-      hists['mcSum'] = hists['mcSum'] * mc_err_atone
+
+    if getattr(defaults, "addMVASysts", True ) :
+        hists['mcSum'] = hists['mcSum'] * mc_err_atone
 
     if not sigs_to_use_:
         sigs_to_use_ = sig_hists
@@ -141,6 +142,20 @@ def fixHistsStyles( stack, plot_styles, reorder = True):
     return new_stack
 
 
+def niceRegionName(r):
+    ret = r.replace("sr","SR").replace("cr","CR").replace("vl","VL").replace("l","L").replace("v","V").replace("h","H").replace("m","M")
+    if "VL" in ret:
+        ret = "VL"#"[3.5-5)"
+    elif "L" in ret:
+        ret = "L"#"[5-12)"
+    elif "M" in ret:
+        ret = "M"#"[12-20)"
+    elif "H" in ret:
+        ret = "H"#"[20-30)"
+    return ret
+
+
+
 def getCCplot( root_file ) :
     #print "\n\n " , root_file
     filename = os.path.basename( root_file )
@@ -178,14 +193,22 @@ def getCCplot( root_file ) :
         else:
             mc_stack.Add( h ) 
     objs['mcStack'] = mc_stack
+    objs['mcSum'] = plottools.getStackTot( objs["mcStack"] )
+    mc_total = objs['mcSum']
+
+    if 'fit_' in root_file:
+        for i in range(1, mc_total.GetNbinsX()+1):
+            mc_total.GetXaxis().SetBinLabel( i , niceRegionName(mc_total.GetXaxis().GetBinLabel(i)) )
+            mc_total.GetXaxis().LabelsOption("H")
+            #mc_total.GetXaxis().SetTitle("p_{T}(l) [GeV]")
+            mc_total.GetXaxis().SetTitle("p_{T}(l) Category")
 
     sig_stack_all = objs['sigStack_']
     
     sighists = [h for h in sig_stack_all.GetHists() if getSigMasses(h.GetName()) in sigs_to_use  ]
     if len(sighists) == len(sigs_to_use):
         sig_stack = ROOT.THStack("sigStack","sigStack")
-        for h in sighists:
-             
+        for h in sorted( sighists, key=lambda x:x.GetName() , reverse = True):
             sig_stack.Add(h)
         objs['sigStack']=sig_stack
     else:
@@ -197,7 +220,6 @@ def getCCplot( root_file ) :
     
     
 
-    objs['mcSum'] = plottools.getStackTot( objs["mcStack"] )
 
 
     #print objs
