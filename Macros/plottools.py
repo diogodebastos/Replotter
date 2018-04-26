@@ -325,7 +325,7 @@ def drawNiceDataPlot( data_hist, mc_stack, sig_stack = None ,mc_total = None, op
     ytitle_r = options.get( "ytitle_r", getattr(defaults, "ytitle_r", "Data/MC") )
     #ytitle_size = options.get("ytitle_size", 0.12 )
     #ytitle_offset = options.get("ytitle_offset", 0.5)
-    xtitle = options.get( "xtitle")
+    xtitle = options.get( "xtitle", getattr(defaults, "xtitle", None))
     canv[2].cd()
     unity.Draw() 
     unity.GetYaxis().SetTitle(       ytitle_r ) 

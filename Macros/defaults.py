@@ -134,33 +134,10 @@ plot_options = {
                                         'cmsTextSize':1.4,
                                        }
                          },
-                'BDT': { 
+                'MVA': { 
                         'defaults':{
-                                    'ratio_range':[0.1,2.1],
                                     'mvaUncertainty':"syst",
                                    }
-                },
-                'BDTEnv': { 
-                         'defaults':{
-                                     'ratio_range':[0.1,2.1],
-                                     'mvaUncertainty':"env",
-                                    }
-                },
-                'BDTStat': { 
-                         'defaults':{
-                                     'ratio_range':[0.1,2.1],
-                                     'mvaUncertainty':"stat",
-                                    }
-                },
-                'MVAEnv': { 
-                         'defaults':{
-                                     'mvaUncertainty':"env",
-                                    }
-                },
-                'MVAStat': { 
-                         'defaults':{
-                                     'mvaUncertainty':"stat",
-                                    }
                 }
             }
 
@@ -175,6 +152,38 @@ plot_options['CCresT2bW']['CMS_lumi'].update({
                                                'extraText':'Supplementary',
                                                 
                                              })
+
+## MVA specific shenanigans
+plot_options['MVAEnv'] = deepcopy( plot_options['MVA'] )
+plot_options['MVAEnv']['defaults'].update({
+                                           'mvaUncertainty':"env",
+                                         })
+plot_options['MVAStat'] = deepcopy( plot_options['MVA'] )
+plot_options['MVAStat']['defaults'].update({
+                                           'mvaUncertainty':"stat",
+                                         })
+plot_options['BDT'] = deepcopy( plot_options['MVA'] )
+plot_options['BDT']['defaults'].update({
+                                        'ratio_range':[0.1,2.1],
+                                      })
+plot_options['BDTEnv'] = deepcopy( plot_options['BDT'] )
+plot_options['BDTEnv']['defaults'].update({
+                                           'mvaUncertainty':"env",
+                                         })
+plot_options['BDTStat'] = deepcopy( plot_options['BDT'] )
+plot_options['BDTStat']['defaults'].update({
+                                            'mvaUncertainty':"stat",
+                                          })
+for dm in range(10,90,10):
+  baseOptionName = "BDT" + str(dm)
+  thisXTitle = "BDT (#it{#Deltam} = " + str(dm) + " GeV)"
+  #thisXTitle = "BDT (#Deltam#kern[0.6]{=}#kern[0.13]{" + str(dm)[0] + "}" + str(dm)[1:] + ")"
+  variations = ["", "Stat", "Env"]
+  for var in variations:
+    plot_options[baseOptionName+var] = deepcopy( plot_options['BDT'+var] )
+    plot_options[baseOptionName+var]['defaults'].update({
+                                                         'xtitle':thisXTitle,
+                                                       })
 
 
 plot_opt = ""

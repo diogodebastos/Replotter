@@ -44,22 +44,27 @@ def replot(inDir, dryRun):
 
   for file in fileList:
     isBDT = False
+    bdtName = "BDT"
     if file[-18:-13] == "_BDT_":
       isBDT = True
+      tree = (inDir).split("/")
+      for node in tree:
+        if node[:6] == "DeltaM":
+          bdtName = "BDT" + node[6:]
 
-    opt = None
+    opt = "MVA"
     if isBDT:
-      opt = "BDT"
+      opt = bdtName
     runReplotter(inDir, file, opt, "syst", dryRun)
 
     opt = "MVAEnv"
     if isBDT:
-      opt = "BDTEnv"
+      opt = bdtName + "Env"
     runReplotter(inDir, file, opt, "envelope", dryRun)
 
     opt = "MVAStat"
     if isBDT:
-      opt = "BDTStat"
+      opt = bdtName + "Stat"
     runReplotter(inDir, file, opt, "stat", dryRun)
 
   for dir in dirList:
