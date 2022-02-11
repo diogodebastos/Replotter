@@ -1,3 +1,4 @@
+import os
 import CMS_lumi
 import tdrstyle
 import ROOT
@@ -7,9 +8,9 @@ import ROOT
 from copy import deepcopy
 import colorsys
 
-    
+YEAR = os.getenv("YEAR")    
 
-
+print "year: " + YEAR
 addMVASysts = True  # Option to include uncertainties from relativeSystematicUncertainties to MVA hists 
     
 
@@ -21,7 +22,8 @@ sigs_to_use = (
               )  ## use these sigs of available 
 
 
-mvaUncertainty = "syst"
+#mvaUncertainty = "syst"
+mvaUncertainty = ""
 
 
 
@@ -40,7 +42,7 @@ plot_styles = {
                "VV":           { 'SetFillColor': (0.25, 0.90, 0.45) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Diboson'},
                "ZInv":         { 'SetFillColor': (0.13, 1.00, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Z#rightarrow#nu#nu + jets'},
                "DY":           { 'SetFillColor': (0.77, 0.60, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Z/#gamma* + jets'},
-               "QCD":          { 'SetFillColor': (0.85, 1.00, 0.40) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'QCD multijet'},
+               "QCD":          { 'SetFillColor': (0.85, 1.00, 0.40) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Multijet'},
                "TTX":          { 'SetFillColor': (0.55, 0.40, 1.20) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'t#bar{t}X'},
                "Rare":        { 'SetFillColor': (0.13, 1.00, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Rare'},
                "Nonprompt":   { 'SetFillColor': (0.77, 0.60, 1.00) , 'SetLineWidth': 0, 'SetLineStyle': 1 ,'SetTitle':'Nonprompt'},
@@ -136,7 +138,8 @@ plot_options = {
                          },
                 'MVA': { 
                         'defaults':{
-                                    'mvaUncertainty':"syst",
+                                    #'mvaUncertainty':"syst",
+                                    'mvaUncertainty':"",
                                    }
                 }
             }
@@ -174,6 +177,11 @@ plot_options['BDTStat'] = deepcopy( plot_options['BDT'] )
 plot_options['BDTStat']['defaults'].update({
                                             'mvaUncertainty':"stat",
                                           })
+
+plot_options['PAPER'] = deepcopy( plot_options['MVA'] )
+plot_options['PAPER']['defaults'].update({
+                                        'ratio_range':[0.1,2.1],
+                                      })
 for dm in range(10,90,10):
   baseOptionName = "BDT" + str(dm)
   thisXTitle = "BDT (#it{#Deltam} = " + str(dm) + " GeV)"
@@ -240,6 +248,10 @@ hists_order = ["TTX", "QCD","DY", "ZInv","VV","SingleTop","TTbar","WJets"]
 
 ## CMS_Lumi
 lumi = 35.9
+if YEAR == "2017":
+  lumi = 41.2
+elif YEAR == "2018":
+  lumi = 59.7
 energy = 13
 iPosX  = 11 ## 0: CMS logo outside, 10: CMS logo inside
 

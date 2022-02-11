@@ -52,14 +52,60 @@ def getMVAplot( root_file):
         hists['sigStack'].Add( sig_hist )
     return hists
 
+def getPAPERplot( root_file):
+    tf = ROOT.TFile(root_file)
+    hists = dict(   [ (x.GetName(), getattr(tf, x.GetName())) for x in tf.GetListOfKeys()] )
+    hists['sigStack'] = ROOT.THStack("sigStack","sigStack")
+    sig_hists    = [h for h in hists.values() if getSigMasses(h.GetTitle()) ]
+    sigs_to_use_ = [ h for h in sig_hists if getSigMasses(h.GetTitle()) in sigs_to_use ]
+    #hists['mcError'] = hists['']
+    hists['mcSum_orig'] = hists['mcSum'].Clone()
+    if mvaUncertainty == "syst" or mvaUncertainty == "env":
+      if mvaUncertainty == "syst":
+        mc_err_atone   = hists['relativeSystematicUncertainties'].Clone()
+      else:
+        mc_err_atone   = hists['relativeSystematicUncertaintiesEnvelope'].Clone()
+      hists['mcSum'].Sumw2()
+      mc_err_atone.Sumw2()
+      for ib in range( 1,mc_err_atone.GetNbinsX()+1 ):
+        mc_err_atone.SetBinContent(ib,1)
+
+      if getattr(defaults, "addMVASysts", True ) :
+        hists['mcSum'] = hists['mcSum'] * mc_err_atone
+
+    if not sigs_to_use_:
+        sigs_to_use_ = sig_hists
+
+    for htitle,h in hists.items(): 
+        #print htitle, h.GetName()
+        try:
+            h.SetDirectory(0)
+        except:
+            pass
+    for sig_hist in sigs_to_use_:
+        hists['sigStack'].Add( sig_hist )
+    return hists
+
 def fixHistStyle( hist, plot_styles ):
-    MVA_name_map  ={
-                     'DY + Jets': 'DY',
-                     'Multiboson': 'VV',
-                     'Multijet': 'QCD',
-                     'Single Top': 'SingleTop',
+    Paper_name_map ={
+                     'Z/#gamma* + jets': 'DY',
+                     'Diboson': 'VV',
+                     #'Multijet': 'QCD',
+                     'Single top': 'SingleTop',
                      'W + Jets': 'WJets',
-                     'Z(#nu#nu) + jets': 'ZInv',
+                     #'Z(#nu#nu) + jets': 'ZInv',
+                     'nonprompt': 'Nonprompt',
+                     't#bar{t}': 'TTbar',
+                     't#bar{t}X': 'TTX' , 
+                     'Data'     :  'Data', 
+                  }
+    MVA_name_map  ={
+                     'Z/#gamma* + jets': 'DY',
+                     'Diboson': 'VV',
+                     'Multijet': 'QCD',
+                     'Single top': 'SingleTop',
+                     'W + Jets': 'WJets',
+                     'Z#rightarrow#nu#nu + jets': 'ZInv',
                      't#bar{t}': 'TTbar',
                      't#bar{t}X': 'TTX' , 
                      'Data'     :  'Data', 
@@ -110,7 +156,8 @@ def fixHistStyle( hist, plot_styles ):
         if not new_name in plot_styles:
             hist.SetTitle( defaults.sig_label%masses )
     else:
-        new_name = MVA_name_map.get( htitle , None)
+        #new_name = MVA_name_map.get( htitle , None)
+        new_name = Paper_name_map.get( htitle , None)
         if new_name : hist.SetName( new_name)
     #hist.SetTitle(new_name)
     plot_info = plot_styles.get(new_name,{})

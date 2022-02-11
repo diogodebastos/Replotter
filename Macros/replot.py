@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser( description= "Arguments for replotting")
 parser.add_argument('--plot_path'       , help='Path to the root file plot')
 parser.add_argument('--output_dir'      , help='Output dir for png, pdf, root')
 parser.add_argument('--output_name'     , help='Output name. if not give same name as input will be used')
-parser.add_argument('--isMVAorCC'       , choices=['mva','cc'] , help='')
+parser.add_argument('--isPAPERorMVAorCC'       , choices=['paper','mva','cc'] , help='')
 parser.add_argument('--opt'        , choices=defaults.plot_options.keys() )
 
 args = parser.parse_args()
@@ -29,8 +29,8 @@ cms_lumi_defaults = plot_options.get("CMS_lumi",{})
 for opt, optval in cms_lumi_defaults.items():
     setattr(defaults.CMS_lumi,opt,optval)
 
-def replot( isMVAorCC, plot_path, output_dir, plot_options={}):
-    assert isMVAorCC in ['mva','cc']
+def replot( isPAPERorMVAorCC, plot_path, output_dir, plot_options={}):
+    assert isPAPERorMVAorCC in ['paper','mva','cc']
     
     plot_root_file = os.path.basename( plot_path )
     
@@ -38,10 +38,12 @@ def replot( isMVAorCC, plot_path, output_dir, plot_options={}):
         raise Exception("--plot_path needs to be path to a MVA or CC root file. Instead it was %s"%plot_path)
     plot_name = os.path.splitext( plot_root_file )[0]
 
-    if isMVAorCC=='cc':
+    if isPAPERorMVAorCC=='cc':
         plot_dict = getplots.getCCplot( plot_path )
-    if isMVAorCC=='mva':
+    if isPAPERorMVAorCC=='mva':
         plot_dict = getplots.getMVAplot( plot_path )
+    if isPAPERorMVAorCC=='paper':
+        plot_dict = getplots.getPAPERplot( plot_path )
 
     data, mc_stack, sig_stack = plot_dict["Data"], plot_dict["mcStack"], plot_dict["sigStack"]
     mc_stack  = getplots.fixHistsStyles( mc_stack  , plot_styles )
@@ -71,17 +73,20 @@ if __name__ == '__main__':
         raise Exception("--plot_path needs to be path to a MVA or CC root file. Instead it was %s"%plot_path)
     plot_name = os.path.splitext( plot_root_file )[0] if not args.output_name else args.output_name
 
-    if args.isMVAorCC=='cc':
+    if args.isPAPERorMVAorCC=='cc':
         plot_dict = getplots.getCCplot( plot_path )
-    if args.isMVAorCC=='mva':
+    if args.isPAPERorMVAorCC=='mva':
         plot_dict = getplots.getMVAplot( plot_path )
+    if args.isPAPERorMVAorCC=='paper':
+        plot_dict = getplots.getPAPERplot( plot_path )
 
     data, mc_stack, sig_stack, mc_tot  = plot_dict["Data"], plot_dict["mcStack"], plot_dict["sigStack"], plot_dict["mcSum"]
+    sig_stack = getplots.fixHistsStyles( sig_stack , plot_styles , reorder = False)
     mc_stack  = getplots.fixHistsStyles( mc_stack  , plot_styles )
     data      = getplots.fixHistsStyles( data      , plot_styles )
-    sig_stack = getplots.fixHistsStyles( sig_stack , plot_styles , reorder = False)
     leg       = plottools.makeLegend( data, mc_stack, sig_stack  , nBkgInLeg=defaults.nBkgInLeg , legx=defaults.legx, legy=defaults.legy )
     plot_ret  = plottools.drawNiceDataPlot( data, mc_stack, sig_stack, mc_total=mc_tot, saveDir=args.output_dir, name=plot_name , leg=leg, options=plot_options )
+    
 
     #if plot_options.has_key('objectsToDraw'):
     #    objectsToDraw = plot_options['objectsToDraw']
